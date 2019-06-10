@@ -11,6 +11,8 @@ import {
   TextureLoader,
   TorusKnotGeometry,
   SpotLight,
+  PlaneGeometry,
+  AmbientLight,
 } from "three";
 
 export default class Drewer {
@@ -159,6 +161,76 @@ export default class Drewer {
       const ly = r + 5.0 * Math.sin(t / 3.0);
       light.position.set(lx, ly, lz);
 
+      requestAnimationFrame(tick);
+    }
+
+    tick();
+  }
+
+  perspectiveCamera = () => {
+    const canvas: HTMLCanvasElement | null = document.querySelector("#three");
+    if(!canvas) {
+      return;
+    }
+
+    const renderer = new WebGLRenderer({
+      canvas,
+      antialias: true
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(this.WIDTH, this.HEIGHT);
+    renderer.shadowMap.enabled = true;
+
+    const scene = new Scene();
+
+    const camera = new PerspectiveCamera(50, this.WIDTH / this.HEIGHT);
+
+    const ambientLight = new AmbientLight(0xffffff);
+    scene.add(ambientLight);
+
+    const spotLight = new SpotLight(0xdddddd, 5, 2000, Math.PI / 5, 0.2, 1.5);
+    spotLight.position.set(300, 50, 1000);
+    spotLight.castShadow = true;
+    spotLight.shadow.mapSize.width = 2048;
+    spotLight.shadow.mapSize.height = 2048;
+    scene.add(spotLight);
+
+    const floor = new Mesh(
+      new PlaneGeometry(2000, 2000),
+      new MeshStandardMaterial({
+        roughness: 0.0,
+        metalness: 0.2
+      })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const boxMaterial = new MeshStandardMaterial({
+      color: 0x22dd22,
+      roughness: 0.1,
+      metalness: 0.2
+    });
+    const boxGeometry = new BoxGeometry(45, 45, 45);
+    for(let i = 0; i < 60; i++) {
+      const box = new Mesh(boxGeometry, boxMaterial);
+      box.position.x = Math.round((Math.random() - 0.5) * 19) * 50 + 25;
+      box.position.y = 25;
+      box.position.z = Math.round((Math.random() - 0.5) * 19) * 50 + 25;
+
+      box.castShadow = true;
+      box.receiveShadow = true;
+      scene.add(box);
+    }
+
+    const tick = () => {
+      camera.position.x = 500 * Math.sin(Date.now() / 2000);
+      camera.position.y = 250;
+      camera.position.z = 500 * Math.cos(Date.now() / 2000);
+
+      camera.lookAt(new Vector3(0, 0, 0));
+
+      renderer.render(scene, camera);
       requestAnimationFrame(tick);
     }
 

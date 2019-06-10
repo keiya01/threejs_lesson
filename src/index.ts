@@ -19,6 +19,11 @@ const start = () => {
       drewer.multiShadow();
       break;
     }
+    case "perspective-camera": {
+      const drewer = new Drewer();
+      drewer.perspectiveCamera();
+      break;
+    }
   }
 
   setRouter();
@@ -37,6 +42,10 @@ const setRouter = () => {
     {
       value: "multi-shadow",
       href: "/#/multi-shadow"
+    },
+    {
+      value: "perspective-camera",
+      href: "/#/perspective-camera"
     },
   ]
 
